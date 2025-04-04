@@ -1,31 +1,26 @@
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-} from "react-router-dom";
-import ProtectedROutest from "./components/ProtectedROutest";
-import MainLayout from "./layouts/MainLayout";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Mainlayout from "./layout/MainLayout";
+import ProtectedRoutes from "./components/ProtectedRoutes";
 
+//pages
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Create from "./pages/Create";
-
 import { useGlobalContext } from "./hooks/useGlobalContext";
 import { useEffect } from "react";
-import { auth } from "./firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/config";
 
 function App() {
   const { user, dispatch, isAuthReady } = useGlobalContext();
-
   const routes = createBrowserRouter([
     {
       path: "/",
       element: (
-        <ProtectedROutest user={user}>
-          <MainLayout />
-        </ProtectedROutest>
+        <ProtectedRoutes user={user}>
+          <Mainlayout />
+        </ProtectedRoutes>
       ),
       children: [
         {
@@ -49,16 +44,13 @@ function App() {
   ]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+    onAuthStateChanged(auth, (user) => {
+      if (user?.displayName && user?.photoURL) {
         dispatch({ type: "LOGIN", payload: user });
       }
       dispatch({ type: "AUTH_READY" });
     });
-
-    return () => unsubscribe();
   }, []);
-
   return <>{isAuthReady && <RouterProvider router={routes} />}</>;
 }
 
