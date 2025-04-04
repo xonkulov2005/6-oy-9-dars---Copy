@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { auth } from "../firebase/config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import toast from "react-hot-toast";
 import { useGlobalContext } from "./useGlobalContext";
+import toast from "react-hot-toast";
 
 export const useRegister = () => {
   const { dispatch } = useGlobalContext();
@@ -15,11 +15,15 @@ export const useRegister = () => {
       const req = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(auth.currentUser, {
         displayName,
-        photoURL: `https://api.dicebear.com/9.x/adventurer/svg?seed=${displayName}`,
+        photoURL: `https://api.dicebear.com/9.x/open-peeps/svg?seed=${displayName}
+`,
       });
       const user = req.user;
-      toast.success(`Welcome ${displayName}`);
+      toast.success(`Qalesan, ${user.displayName}`);
+
       dispatch({ type: "LOGIN", payload: user });
+      setData(user);
+      console.log(user);
     } catch (error) {
       toast.error(error.message);
       console.log(error.message);
@@ -27,5 +31,6 @@ export const useRegister = () => {
       setIsPending(false);
     }
   };
+
   return { isPending, data, register };
 };
